@@ -1,5 +1,11 @@
 var dayOfWeek = new Date().toLocaleString('en-us', {  weekday: 'long' })
-document.getElementsByTagName("footer")[0].getElementsByTagName("div")[0].innerHTML = "Have a nice " + dayOfWeek; //change content
+if (dayOfWeek == "Thursday") {
+	footerText = "I never could get the hang of Thursdays"
+} else {
+	footerText = "Have a nice " + dayOfWeek
+}
+
+document.getElementsByTagName("footer")[0].getElementsByTagName("div")[0].innerHTML = footerText; //change content
 
 var navLinks = document.querySelectorAll("nav a");
 for (var i = 0; i < navLinks.length; i++) {
