@@ -1,15 +1,17 @@
 {{define "title"}}Meme #{{.Meme.ID}}{{end}}
 
 {{define "main"}}
+    {{with .Meme}}
     <div class='meme'>
         <div class='metadata'>
-            <strong>{{.Meme.Title}}</strong>
-            <span>#{{.Meme.ID}}</span>
+            <strong>{{.Title}}</strong>
+            <span>#{{.ID}}</span>
         </div>
-        <pre><code>{{.Meme.B64}}</code></pre>
+        <pre><code>{{.B64}}</code></pre>
         <div class='metadata'>
-            <time>Created: {{.Meme.Created}}</time>
-            <span>Version: {{.Meme.Version}}</span>
+            <time>Created: {{.Created}}</time>
+            <span>Version: {{.Version}}</span>
         </div>
     </div>
+    {{end}}
 {{end}}

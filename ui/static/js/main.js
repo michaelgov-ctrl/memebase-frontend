@@ -5,7 +5,8 @@ if (dayOfWeek == "Thursday") {
 	footerText = "Have a nice " + dayOfWeek
 }
 
-document.getElementsByTagName("footer")[0].getElementsByTagName("div")[0].innerHTML = footerText; //change content
+// document.getElementsByTagName("footer")[0].getElementsByTagName("div")[0].innerHTML = footerText;
+document.getElementsByTagName("footer")[0].innerHTML = footerText; //change content
 
 var navLinks = document.querySelectorAll("nav a");
 for (var i = 0; i < navLinks.length; i++) {

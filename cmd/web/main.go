@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"text/template"
 
 	"github.com/michaelgov-ctrl/memebase-front/internal/models"
 )
@@ -15,9 +16,10 @@ type config struct {
 }
 
 type application struct {
-	config config
-	logger *slog.Logger
-	models models.Models
+	config        config
+	logger        *slog.Logger
+	models        models.Models
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -42,13 +44,19 @@ func main() {
 		os.Exit(1)
 	}
 	defer closeDB(db)
-
 	logger.Info("database connection pool established")
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	app := &application{
-		config: cfg,
-		logger: logger,
-		models: models.NewModels(db),
+		config:        cfg,
+		logger:        logger,
+		models:        models.NewModels(db),
+		templateCache: templateCache,
 	}
 
 	app.logger.Info("starting server", "addr", app.config.addr)
