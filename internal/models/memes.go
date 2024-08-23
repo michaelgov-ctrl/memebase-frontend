@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type WrappedMeme struct {
+	Meme Meme
+}
+
 type Meme struct {
 	ID      string     `json:"id,omitempty"` //"go.mongodb.org/mongo-driver/bson/primitive" ID     primitive.ObjectID
 	Created *time.Time `json:"created,omitempty"`
@@ -58,7 +62,7 @@ func (m *MemeModel) PostMeme(meme *Meme) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusSeeOther {
+	if resp.StatusCode != http.StatusCreated {
 		return "", ErrFailedCreation
 	}
 
@@ -86,13 +90,17 @@ func (m *MemeModel) GetById(id string) (*Meme, error) {
 		return nil, errors.New(resp.Status)
 	}
 
-	var meme = &Meme{}
-	err = json.NewDecoder(resp.Body).Decode(meme)
+	var wm WrappedMeme
+	err = json.NewDecoder(resp.Body).Decode(&wm)
 	if err != nil {
 		return nil, err
 	}
 
-	return meme, nil
+	if (Meme{}) == wm.Meme {
+		return nil, errors.New("response did not match meme format")
+	}
+
+	return &wm.Meme, nil
 }
 
 func (m *MemeModel) GetMemeList(queryString string) (*MemeListResponse, error) {

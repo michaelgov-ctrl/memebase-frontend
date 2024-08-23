@@ -12,7 +12,7 @@ html, body {
 
 body {
     line-height: 1.5;
-    background-color: #030f22;
+    background-color: #474953;
     color: #E4E5E7;
     overflow-y: scroll;
 }
@@ -220,20 +220,20 @@ button:hover {
     cursor: pointer;
 }
 
-.F7F9FA {
+.meme {
     background-color: #FFFFFF;
     border: 1px solid #E4E5E7;
     border-radius: 3px;
 }
 
-.F7F9FA pre {
+.meme pre {
     padding: 18px;
     border-top: 1px solid #E4E5E7;
     border-bottom: 1px solid #E4E5E7;
 }
 
-.F7F9FA .metadata {
-    background-color: #F7F9FA;
+.metadata {
+    background-color: #c2c2c2;
     color: #6A6C6F;
     padding: 0.75em 18px;
     overflow: auto;
