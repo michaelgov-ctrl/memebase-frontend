@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/michaelgov-ctrl/memebase-front/internal/data"
+	"github.com/michaelgov-ctrl/memebase-front/internal/models"
 )
 
 type config struct {
@@ -17,7 +17,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
-	models data.Models
+	models models.Models
 }
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
-		models: data.NewModels(db),
+		models: models.NewModels(db),
 	}
 
 	app.logger.Info("starting server", "addr", app.config.addr)

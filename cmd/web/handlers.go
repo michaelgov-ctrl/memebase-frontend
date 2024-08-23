@@ -1,34 +1,48 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
-	"text/template"
 
-	"github.com/michaelgov-ctrl/memebase-front/internal/data"
+	"github.com/michaelgov-ctrl/memebase-front/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
-	//base must be the first file in the slice
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/home.tmpl.html",
-	}
-
-	ts, err := template.ParseFiles(files...)
+	mlr, err := app.models.Memes.GetMemeList("")
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, r, err)
+	for _, meme := range mlr.Memes {
+		fmt.Fprintf(w, "%+v\n", meme)
 	}
+
+	fmt.Fprintf(w, "%+v\n", mlr.Metadata)
+
+	/*
+		//base must be the first file in the slice
+		files := []string{
+			"./ui/html/base.tmpl.html",
+			"./ui/html/partials/nav.tmpl.html",
+			"./ui/html/pages/home.tmpl.html",
+		}
+
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		err = ts.ExecuteTemplate(w, "base", nil)
+		if err != nil {
+			app.serverError(w, r, err)
+		}
+	*/
 }
 
 func (app *application) memeView(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +52,18 @@ func (app *application) memeView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific meme with ID %s...", id)
+	// id = "66c78b9d663ce3e2a6bf35c4"
+	meme, err := app.models.Memes.GetById(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoMeme) {
+			http.NotFound(w, r)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "id: %s\nmeme: %v", id, meme)
 }
 
 func (app *application) memeCreate(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +71,7 @@ func (app *application) memeCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) memeCreatePost(w http.ResponseWriter, r *http.Request) {
-	meme := data.Meme{
+	meme := models.Meme{
 		Artist: "dddd",
 		Title:  "qqqq",
 		B64:    "yeep",
