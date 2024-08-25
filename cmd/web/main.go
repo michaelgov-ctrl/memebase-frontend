@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
-	"text/template"
 
 	"github.com/michaelgov-ctrl/memebase-front/internal/models"
 )

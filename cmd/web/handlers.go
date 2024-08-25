@@ -10,18 +10,15 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Server", "Go")
-
 	mlr, err := app.models.Memes.GetMemeList("")
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	data := templateData{
-		Memes:    mlr.Memes,
-		Metadata: mlr.Metadata,
-	}
+	data := app.newTemplateData(r)
+	data.Memes = mlr.Memes
+	data.Metadata = mlr.Metadata
 
 	app.render(w, r, http.StatusOK, "home.tmpl.html", data)
 }
@@ -44,9 +41,8 @@ func (app *application) memeView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := templateData{
-		Meme: *meme,
-	}
+	data := app.newTemplateData(r)
+	data.Meme = *meme
 
 	app.render(w, r, http.StatusOK, "view.tmpl.html", data)
 }

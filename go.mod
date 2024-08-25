@@ -2,7 +2,10 @@ module github.com/michaelgov-ctrl/memebase-front
 
 go 1.22.4
 
-require go.mongodb.org/mongo-driver v1.16.1
+require (
+	github.com/justinas/alice v1.2.0
+	go.mongodb.org/mongo-driver v1.16.1
+)
 
 require (
 	github.com/golang/snappy v0.0.4 // indirect
