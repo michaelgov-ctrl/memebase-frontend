@@ -1,5 +1,5 @@
-const form = document.getElementById("new_document_attachment");
-const fileInput = document.getElementById("document_attachment_doc");
+const form = document.getElementById("create_meme_form");
+const fileInput = document.getElementById("image_file");
 
 fileInput.addEventListener('change', () => {
   form.submit();

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -56,24 +57,41 @@ func (app *application) memeCreate(w http.ResponseWriter, r *http.Request) {
 func (app *application) memeCreatePost(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1_048_576)
 
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(1_280)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	a, _, err := r.FormFile("meme")
+	file, handler, err := r.FormFile("image_file")
 	if err != nil {
-		fmt.Println(err)
+		app.serverError(w, r, err)
+		return
+	}
+	defer file.Close()
+
+	contentType := handler.Header["Content-Type"]
+	if len(contentType) != 1 || !strings.Contains(contentType[0], "image") {
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	fmt.Printf("%t\n%v\n", a, a)
+	// TODO: test the file sizes
+	fmt.Printf("File Size: %+v\n", handler.Size)
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
 
 	meme := models.Meme{
 		Title:  r.PostForm.Get("title"),
 		Artist: r.PostForm.Get("artist"),
-		B64:    r.PostForm.Get("meme"),
+		Image: models.Image{
+			Type:  contentType[0],
+			Bytes: fileBytes,
+		},
 	}
 
 	location, err := app.models.Memes.PostMeme(&meme)

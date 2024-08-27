@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -13,13 +14,26 @@ type WrappedMeme struct {
 	Meme Meme
 }
 
+type Image struct {
+	Type  string `json:"type"`
+	Bytes []byte `json:"bytes"`
+}
+
 type Meme struct {
 	ID      string     `json:"id,omitempty"` //"go.mongodb.org/mongo-driver/bson/primitive" ID     primitive.ObjectID
 	Created *time.Time `json:"created,omitempty"`
 	Artist  string     `json:"artist"`
 	Title   string     `json:"title"`
-	B64     string     `json:"b64"`
+	Image   Image      `json:"image"`
 	Version int32      `json:"version,omitempty"`
+}
+
+func (m *Meme) IsZero() bool {
+	if m.ID == "" && m.Created == nil && m.Artist == "" && m.Title == "" && m.Version == 0 && m.Image.Type == "" && len(m.Image.Bytes) == 0 {
+		return true
+	}
+
+	return false
 }
 
 type Metadata struct {
@@ -62,6 +76,8 @@ func (m *MemeModel) PostMeme(meme *Meme) (string, error) {
 	}
 	defer resp.Body.Close()
 
+	fmt.Println(resp.Body)
+
 	if resp.StatusCode != http.StatusCreated {
 		return "", ErrFailedCreation
 	}
@@ -96,7 +112,7 @@ func (m *MemeModel) GetById(id string) (*Meme, error) {
 		return nil, err
 	}
 
-	if (Meme{}) == wm.Meme {
+	if wm.Meme.IsZero() {
 		return nil, errors.New("response did not match meme format")
 	}
 
