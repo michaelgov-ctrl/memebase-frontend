@@ -132,6 +132,8 @@ func (app *application) memeCreatePost(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(location, "/")
 	id := parts[len(parts)-1]
 
+	app.sessionManager.Put(r.Context(), "flash", "Meme successfully created!")
+
 	http.Redirect(w, r, fmt.Sprintf("/meme/view/%s", id), http.StatusSeeOther)
 }
 

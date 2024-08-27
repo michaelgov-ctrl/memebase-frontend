@@ -10,6 +10,7 @@ import (
 
 type templateData struct {
 	CurrentYear int
+	Flash       string
 	Form        any
 	Meme        models.Meme
 	Memes       []models.Meme

@@ -6,7 +6,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/mongodbstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/michaelgov-ctrl/memebase-front/internal/models"
 )
 
@@ -16,10 +19,11 @@ type config struct {
 }
 
 type application struct {
-	config        config
-	logger        *slog.Logger
-	models        models.Models
-	templateCache map[string]*template.Template
+	config         config
+	logger         *slog.Logger
+	models         models.Models
+	templateCache  map[string]*template.Template
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -52,11 +56,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	sessionManager := scs.New()
+	sessionManager.Store = mongodbstore.New(db.Database("memebase"))
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := &application{
-		config:        cfg,
-		logger:        logger,
-		models:        models.NewModels(db),
-		templateCache: templateCache,
+		config:         cfg,
+		logger:         logger,
+		models:         models.NewModels(db),
+		templateCache:  templateCache,
+		sessionManager: sessionManager,
 	}
 
 	app.logger.Info("starting server", "addr", app.config.addr)
