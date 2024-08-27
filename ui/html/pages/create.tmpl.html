@@ -4,14 +4,24 @@
 <form action='/meme/create' method='POST' enctype='multipart/form-data' id='create_meme_form'>
     <div>
         <label>Title:</label>
-        <input type='text' name='title'>
+        {{with .Form.FieldErrors.title}}
+            <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='title' value='{{.Form.Title}}' required>
     </div>
     <div>
         <label>Artist:</label>
-        <input type='text' name='artist'>
+        {{with .Form.FieldErrors.artist}}
+            <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='artist' value='{{.Form.Artist}}' required>
     </div>
     <div>
-        <input type="file" name="image_file" id="image_file" />
+        <label>Image File:</label>
+        {{with .Form.FieldErrors.image}}
+            <label class='error'>{{.}}</label>
+        {{end}}
+        <input type="file" name="image_file" id="image_file" required>
     </div>
     <div>
         <input type='submit' value='Publish meme'>

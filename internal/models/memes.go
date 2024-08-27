@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -75,8 +74,6 @@ func (m *MemeModel) PostMeme(meme *Meme) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-
-	fmt.Println(resp.Body)
 
 	if resp.StatusCode != http.StatusCreated {
 		return "", ErrFailedCreation
