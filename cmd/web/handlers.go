@@ -6,16 +6,16 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/michaelgov-ctrl/memebase-front/internal/models"
+	"github.com/michaelgov-ctrl/memebase-front/internal/validator"
 )
 
 type memeCreateForm struct {
 	Title       string
 	Artist      string
 	ContentType string
-	FieldErrors map[string]string
+	validator.Validator
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -90,29 +90,18 @@ func (app *application) memeCreatePost(w http.ResponseWriter, r *http.Request) {
 		Title:       r.PostForm.Get("title"),
 		Artist:      r.PostForm.Get("artist"),
 		ContentType: http.DetectContentType(buf),
-		FieldErrors: map[string]string{},
 	}
 
-	if !strings.Contains(form.ContentType, "image") {
-		form.FieldErrors["image"] = "Provided file must be an image"
-	}
-
-	if strings.TrimSpace(form.Title) == "" {
-		form.FieldErrors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(form.Title) > 100 {
-		form.FieldErrors["title"] = "This field cannot be more than 100 characters long"
-	}
-
-	if strings.TrimSpace(form.Artist) == "" {
-		form.FieldErrors["artist"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(form.Artist) > 100 {
-		form.FieldErrors["artist"] = "This field cannot be more than 100 characters long"
-	}
+	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
+	form.CheckField(validator.NotBlank(form.Artist), "artist", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.Artist, 100), "artist", "This field cannot be more than 100 characters long")
+	form.CheckField(validator.StringMatch(form.ContentType, "image"), "image", "Provided file must be an image")
 
 	// TODO: test the file sizes
 	fmt.Printf("File Size: %+v\n", handler.Size)
 
-	if len(form.FieldErrors) > 0 {
+	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl.html", data)
