@@ -48,14 +48,32 @@ func (app *application) memeView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) memeCreate(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Display a form for creating a new meme..."))
+	data := app.newTemplateData(r)
+
+	app.render(w, r, http.StatusOK, "create.tmpl.html", data)
 }
 
 func (app *application) memeCreatePost(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1_048_576)
+
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	a, _, err := r.FormFile("meme")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("%t\n%v\n", a, a)
+
 	meme := models.Meme{
-		Artist: "dddd",
-		Title:  "qqqq",
-		B64:    "yeep",
+		Title:  r.PostForm.Get("title"),
+		Artist: r.PostForm.Get("artist"),
+		B64:    r.PostForm.Get("meme"),
 	}
 
 	location, err := app.models.Memes.PostMeme(&meme)

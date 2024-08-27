@@ -1,0 +1,21 @@
+{{define "title"}}Create a New Meme{{end}}
+
+{{define "main"}}
+<form action='/meme/create' method='POST' enctype='multipart/form-data'>
+    <div>
+        <label>Title:</label>
+        <input type='text' name='title'>
+    </div>
+    <div>
+        <label>Artist:</label>
+        <input type='text' name='artist'>
+    </div>
+    <div>
+        <input type="file" name="document_attachment_doc" id="document_attachment_doc" />
+    </div>
+    <div>
+        <input type='submit' value='Publish meme'>
+    </div>
+</form>
+<script src='/static/js/createMemeForm.js' type='text/javascript'></script>
+{{end}}
