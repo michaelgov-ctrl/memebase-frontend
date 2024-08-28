@@ -8,17 +8,17 @@ import (
 )
 
 type Models struct {
-	Auth  AuthModel
-	Memes MemeModel
+	Memes *MemeModel
+	Users *UserModel
 }
 
-func NewModels(db *mongo.Client) Models {
+func NewModels(mongoClient *mongo.Client) Models {
 	return Models{
-		Auth: AuthModel{DB: db},
-		Memes: MemeModel{
+		Memes: &MemeModel{
 			Client:        &http.Client{Timeout: 5 * time.Second},
 			Host:          "http://localhost:4000",
 			MemesEndpoint: "/v1/memes",
 		},
+		Users: &UserModel{DB: mongoClient.Database("users")},
 	}
 }

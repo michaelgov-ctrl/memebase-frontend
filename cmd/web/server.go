@@ -17,7 +17,7 @@ type dbAuth struct {
 	uri      string
 }
 
-func openDB(dba dbAuth) (*mongo.Client, error) {
+func openMongoConnection(dba dbAuth) (*mongo.Client, error) {
 	clientOpts := options.Client().ApplyURI(dba.uri).SetAuth(options.Credential{Username: dba.user, Password: dba.password})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -35,7 +35,7 @@ func openDB(dba dbAuth) (*mongo.Client, error) {
 	return client, nil
 }
 
-func closeDB(client *mongo.Client) func() {
+func closeMongoConnection(client *mongo.Client) func() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
