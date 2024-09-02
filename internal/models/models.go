@@ -19,6 +19,6 @@ func NewModels(mongoClient *mongo.Client) Models {
 			Host:          "http://localhost:4000",
 			MemesEndpoint: "/v1/memes",
 		},
-		Users: &UserModel{DB: mongoClient.Database("users")},
+		Users: &UserModel{DB: mongoClient.Database("memebase")},
 	}
 }

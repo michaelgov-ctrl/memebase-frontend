@@ -9,12 +9,14 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	Flash       string
-	Form        any
-	Meme        models.Meme
-	Memes       []models.Meme
-	Metadata    models.Metadata
+	CurrentYear     int
+	Flash           string
+	Form            any
+	Meme            models.Meme
+	Memes           []models.Meme
+	Metadata        models.Metadata
+	IsAuthenticated bool
+	CSRFToken       string
 }
 
 func humanDate(t time.Time) string {

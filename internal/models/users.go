@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -44,17 +43,20 @@ func (m *UserModel) Insert(name, email, password string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	fmt.Println(user)
 	res, err := m.DB.Collection(collectionName).InsertOne(ctx, &user)
 	if err != nil {
 		// after adding index check for duplicate email fail - chap 10.3
 		return err
 	}
 
-	id, ok := res.InsertedID.(primitive.ObjectID)
-	if !ok {
-		panic(fmt.Sprintf("insert operation returned unexpected value %v", id))
-	}
-
+	fmt.Println(res)
+	/*
+		id, ok := res.InsertedID.(primitive.ObjectID)
+		if !ok {
+			panic(fmt.Sprintf("insert operation returned unexpected value %v", id))
+		}
+	*/
 	return nil
 }
 
