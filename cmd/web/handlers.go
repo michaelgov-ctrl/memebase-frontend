@@ -174,8 +174,16 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	err = app.models.Users.Insert(form.Name, form.Email, form.Password)
 	if err != nil {
-		// after adding index check for duplicate email fail - chap 10.3
-		app.serverError(w, r, err)
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.AddFieldError("email", "Email address is already in use")
+
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl.html", data)
+		} else {
+			app.serverError(w, r, err)
+		}
+
 		return
 	}
 

@@ -3,10 +3,10 @@ package models
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,16 +16,28 @@ var (
 )
 
 type User struct {
-	ID             string    `bson:"_id"`
-	Name           string    `bson:"name"`
-	Email          string    `bson:"email"`
-	HashedPassword []byte    `bson:"hashedPassword"`
-	Created        time.Time `bson:"created"`
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	Name           string             `bson:"name"`
+	Email          string             `bson:"email"`
+	HashedPassword []byte             `bson:"hashedPassword"`
+	Created        time.Time          `bson:"created"`
 }
 
 type UserModel struct {
 	DB *mongo.Database
 }
+
+/*
+func (m *UserModel) ValidateIndex() error {
+	indexModel := mongo.IndexModel{
+		Keys: bson.D{
+			{"name", 1},
+			{"email", 1},
+		},
+		Options: options.Index().SetUnique(true),
+	}
+}
+*/
 
 func (m *UserModel) Insert(name, email, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
@@ -43,20 +55,15 @@ func (m *UserModel) Insert(name, email, password string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	fmt.Println(user)
-	res, err := m.DB.Collection(collectionName).InsertOne(ctx, &user)
+	_, err = m.DB.Collection(collectionName).InsertOne(ctx, &user)
 	if err != nil {
-		// after adding index check for duplicate email fail - chap 10.3
+		if mongo.IsDuplicateKeyError(err) {
+			return ErrDuplicateEmail
+		}
+
 		return err
 	}
 
-	fmt.Println(res)
-	/*
-		id, ok := res.InsertedID.(primitive.ObjectID)
-		if !ok {
-			panic(fmt.Sprintf("insert operation returned unexpected value %v", id))
-		}
-	*/
 	return nil
 }
 
@@ -84,9 +91,12 @@ func (m *UserModel) Authenticate(email, password string) (string, error) {
 		}
 	}
 
-	return user.ID, nil
+	return user.ID.Hex(), nil
 }
 
 func (m *UserModel) Exists(id int) (bool, error) {
-	return false, nil
+	var exists bool
+	exists = true
+
+	return exists, nil
 }
