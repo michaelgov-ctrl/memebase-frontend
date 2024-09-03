@@ -94,9 +94,21 @@ func (m *UserModel) Authenticate(email, password string) (string, error) {
 	return user.ID.Hex(), nil
 }
 
-func (m *UserModel) Exists(id int) (bool, error) {
-	var exists bool
-	exists = true
+func (m *UserModel) Exists(id string) (bool, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return false, ErrDocNotFound
+	}
 
-	return exists, nil
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err = m.DB.Collection(collectionName).FindOne(ctx, bson.D{{"_id", objID}}).Decode(&user)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
