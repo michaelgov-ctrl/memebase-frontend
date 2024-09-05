@@ -7,9 +7,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type MemeModelInterface interface {
+	PostMeme(meme *Meme) (string, error)
+	GetById(id string) (*Meme, error)
+	GetMemeList(queryString string) (*MemeListResponse, error)
+}
+
+type UserModelInterface interface {
+	Insert(name, email, password string) error
+	Authenticate(email, password string) (string, error)
+	Exists(id string) (bool, error)
+}
+
 type Models struct {
-	Memes *MemeModel
-	Users *UserModel
+	Memes MemeModelInterface
+	Users UserModelInterface
 }
 
 func NewModels(mongoClient *mongo.Client) Models {
